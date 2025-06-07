@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    env_file:
+      - .env
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "${ALERTMANAGER_PORT}:9093"
+    volumes:
+      - ./alertmanager/config.yml:/etc/alertmanager/config.yml
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    env_file:
+      - .env
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: monitower-glitchtip
+    ports:
+      - "${GLITCHTIP_PORT}:8000"
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY=${GLITCHTIP_SECRET_KEY}
+      - DATABASE_URL=${GLITCHTIP_DATABASE_URL}
+      - EMAIL_URL=${GLITCHTIP_EMAIL_URL}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - glitchtip-db
+    restart: unless-stopped
+
+  glitchtip-db:
+    image: postgres:17
+    container_name: monitower-glitchtip-db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${GLITCHTIP_DB_NAME}
+      - POSTGRES_USER=${GLITCHTIP_DB_USER}
+      - POSTGRES_PASSWORD=${GLITCHTIP_DB_PASSWORD}
+    volumes:
+      - glitchtip_db_data:/var/lib/postgresql/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    container_name: monitower-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  registry:
+    image: registry:2
+    container_name: monitower-registry
+    ports:
+      - "${REGISTRY_PORT}:5000"
+    env_file:
+      - .env
+    volumes:
+      - registry_data:/var/lib/registry
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: monitower-keycloak
+    command: start-dev
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+    env_file:
+      - .env
+    environment:
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
+  glitchtip_db_data:
+  minio_data:
+  registry_data:
+  keycloak_data:
