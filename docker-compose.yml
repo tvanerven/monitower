@@ -1,7 +1,21 @@
 version: '3.8'
 
+x-environment: &glitchtip-default-env
+  DATABASE_URL: ${GLITCHTIP_DATABASE_URL}
+  SECRET_KEY: ${GLITCHTIP_SECRET_KEY}
+  PORT: 8000
+  EMAIL_URL: ${GLITCHTIP_EMAIL_URL}
+  GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN}
+  DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL}
+  CELERY_WORKER_AUTOSCALE: "1,3"
+
+x-depends_on: &glitchtip-default-depends
+  - monitower-glitchtip-db
+  - monitower-redis
+
 services:
   grafana:
+    container_name: monitower-grafana
     image: grafana/grafana:latest
     ports:
       - "${GRAFANA_PORT}:3000"
@@ -15,6 +29,7 @@ services:
     restart: unless-stopped
 
   prometheus:
+    container_name: monitower-prometheus
     image: prom/prometheus:latest
     ports:
       - "${PROMETHEUS_PORT}:9090"
@@ -27,6 +42,7 @@ services:
     restart: unless-stopped
 
   alertmanager:
+    container_name: monitower-alertmanager
     image: prom/alertmanager:latest
     ports:
       - "${ALERTMANAGER_PORT}:9093"
@@ -36,62 +52,68 @@ services:
       - .env
     restart: unless-stopped
 
-  minio:
-    image: minio/minio:latest
-    ports:
-      - "${MINIO_PORT}:9000"
-      - "${MINIO_CONSOLE_PORT}:9001"
+  # PostgreSQL
+  monitower-glitchtip-db:
+    container_name: monitower-glitchtip-db
+    image: postgres:15
     env_file:
       - .env
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    command: server /data --console-address ":9001"
+      POSTGRES_DB: ${GLITCHTIP_DB_NAME}
+      POSTGRES_USER: ${GLITCHTIP_DB_USER}
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD}
     volumes:
-      - minio_data:/data
+      - glitchtip_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  glitchtip:
-    image: glitchtip/glitchtip:latest
-    container_name: monitower-glitchtip
+    # Redis or Valkey
+  monitower-redis:
+    container_name: monitower-redis
+    image: redis:7-alpine  # or valkey/valkey
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+    # Glitchtip Web UI
+  monitower-glitchtip-web:
+    container_name: monitower-glitchtip-web
+    image: glitchtip/glitchtip
+    depends_on: *glitchtip-default-depends
     ports:
       - "${GLITCHTIP_PORT}:8000"
     env_file:
       - .env
-    environment:
-      - SECRET_KEY=${GLITCHTIP_SECRET_KEY}
-      - DATABASE_URL=${GLITCHTIP_DATABASE_URL}
-      - EMAIL_URL=${GLITCHTIP_EMAIL_URL}
-      - REDIS_URL=${REDIS_URL}
-    depends_on:
-      - glitchtip-db
+    environment: *glitchtip-default-env
+    volumes:
+      - glitchtip_uploads:/code/uploads
     restart: unless-stopped
 
-  glitchtip-db:
-    image: postgres:17
-    container_name: monitower-glitchtip-db
+    # Background worker
+  monitower-glitchtip-worker:
+    container_name: monitower-glitchtip-worker
+    image: glitchtip/glitchtip
+    depends_on: *glitchtip-default-depends
+    command: ./bin/run-celery-with-beat.sh
     env_file:
       - .env
-    environment:
-      - POSTGRES_DB=${GLITCHTIP_DB_NAME}
-      - POSTGRES_USER=${GLITCHTIP_DB_USER}
-      - POSTGRES_PASSWORD=${GLITCHTIP_DB_PASSWORD}
+    environment: *glitchtip-default-env
     volumes:
-      - glitchtip_db_data:/var/lib/postgresql/data
-    depends_on:
-      - redis
+      - glitchtip_uploads:/code/uploads
     restart: unless-stopped
 
-  redis:
-    container_name: monitower-redis
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
+    # One-shot migration job (only needs to run once)
+  monitower-glitchtip-migrate:
+    container_name: monitower-glitchtip-migrate
+    image: glitchtip/glitchtip
+    depends_on: *glitchtip-default-depends
+    command: ./bin/run-migrate.sh
+    env_file:
+      - .env
+    environment: *glitchtip-default-env
 
   registry:
-    image: registry:2
     container_name: monitower-registry
+    image: registry:2
     ports:
       - "${REGISTRY_PORT}:5000"
     env_file:
@@ -101,8 +123,8 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
     container_name: monitower-keycloak
+    image: quay.io/keycloak/keycloak:24.0
     command: start-dev
     ports:
       - "${KEYCLOAK_PORT}:8080"
@@ -121,3 +143,4 @@ volumes:
   minio_data:
   registry_data:
   keycloak_data:
+  glitchtip_uploads:
