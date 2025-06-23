@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  grafana:
+    container_name: monitower-grafana
+    image: grafana/grafana:latest
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    env_file:
+      - .env
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    restart: unless-stopped
+
+  prometheus:
+    container_name: monitower-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  alertmanager:
+    container_name: monitower-alertmanager
+    image: prom/alertmanager:latest
+    ports:
+      - "${ALERTMANAGER_PORT}:9093"
+    volumes:
+      - ./alertmanager/config.yml:/etc/alertmanager/config.yml
+    env_file:
+      - .env
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
