@@ -10,7 +10,6 @@ Monitower is a containerized monitoring stack designed to provide observability 
 - **Glitchtip**: Provides error tracking and monitoring for your applications.
 - **Registry**: A private Docker registry for storing and distributing your container images.
 - **Keycloak**: Provides identity and access management, enabling single sign-on (SSO) and secure authentication for your services.
-- **(Other services as defined in your `docker-compose.yml`)**
 
 ## Getting Started
 
