@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: alerts.wizardtower.dev
+    - host: alertmanager.wizardtower.dev
       http:
         paths:
           - path: /
@@ -21,5 +21,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - alerts.wizardtower.dev
+        - alertmanager.wizardtower.dev
       secretName: alertmanager-tls
