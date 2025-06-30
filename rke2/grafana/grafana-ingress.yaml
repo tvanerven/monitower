@@ -1,11 +1,11 @@
-# grafana-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: grafana-ingress
   namespace: monitower
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    cert-manager.io/cluster-issuer: letsencrypt-http
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   rules:
     - host: grafana.wizardtower.dev
@@ -18,3 +18,7 @@ spec:
                 name: grafana
                 port:
                   number: 80
+  tls:
+    - hosts:
+        - grafana.wizardtower.dev
+      secretName: grafana-tls

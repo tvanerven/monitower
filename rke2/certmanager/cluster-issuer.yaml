@@ -1,0 +1,15 @@
+# cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-http
+spec:
+  acme:
+    email: you@example.com   # 🔁 Replace with your real email
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-http-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
