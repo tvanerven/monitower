@@ -21,13 +21,19 @@ spec:
             - "--telegram.admin=666230298"
             - "--store=bolt"
             - "--listen.addr=0.0.0.0:8080"
-            - "--alertmanager.url=http://alertmanager:9093"
+            - "--alertmanager.url=https://alertmanager.wizardtower.dev"
+            - "--alertmanager.headers=Authorization: $(ALERTMANAGER_AUTH_HEADER)"
           env:
             - name: TELEGRAM_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: alertmanager-telegram-bot-secret
                   key: TELEGRAM_TOKEN
+            - name: ALERTMANAGER_AUTH_HEADER
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-auth
+                  key: AUTH_HEADER
             - name: LISTEN_ADDR
               value: "0.0.0.0:8080"
           ports:
