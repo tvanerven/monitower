@@ -21,8 +21,8 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            envsubst < /etc/alertmanager/config.yml > /etc/alertmanager/rendered.yml && \
-            /bin/alertmanager --config.file=/etc/alertmanager/rendered.yml --storage.path=/alertmanager
+            envsubst < /etc/alertmanager-template/config.yml > /etc/alertmanager-runtime/config.yml && \
+            /bin/alertmanager --config.file=/etc/alertmanager-runtime/config.yml --storage.path=/alertmanager
         env:
           - name: TELEGRAM_BOT_TOKEN
             valueFrom:
@@ -37,14 +37,18 @@ spec:
         ports:
           - containerPort: 9093
         volumeMounts:
-          - name: config
-            mountPath: /etc/alertmanager
+          - name: template-config
+            mountPath: /etc/alertmanager-template
+          - name: runtime-config
+            mountPath: /etc/alertmanager-runtime
           - name: data
             mountPath: /alertmanager
       volumes:
-        - name: config
+        - name: template-config
           configMap:
             name: alertmanager-config
+        - name: runtime-config
+          emptyDir: {}
         - name: data
           persistentVolumeClaim:
             claimName: alertmanager-pvc
