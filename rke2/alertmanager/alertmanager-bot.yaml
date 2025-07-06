@@ -21,7 +21,7 @@ spec:
             - "--telegram.admin=666230298"
             - "--store=bolt"
             - "--listen.addr=0.0.0.0:8080"
-            - "--alertmanager.url=http://alertmanager:80"
+            - "--alertmanager.url=http://alertmanager:9093"
           env:
             - name: TELEGRAM_TOKEN
               valueFrom:
