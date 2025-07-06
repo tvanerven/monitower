@@ -37,12 +37,4 @@ data:
   alert.rules.yml: |
     groups:
       - name: test.rules
-        rules:
-          - alert: TelegramTestAlert
-            expr: vector(1)
-            for: 10s
-            labels:
-              severity: critical
-            annotations:
-              summary: "🚨 Test alert to Telegram"
-              description: "This is a test alert fired by Prometheus to verify Alertmanager integration."
+        rules: []
