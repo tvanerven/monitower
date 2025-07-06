@@ -16,7 +16,9 @@ data:
       repeat_interval: 1h
 
     receivers:
-      - name: telegram
-        webhook_configs:
-          - url: "http://alertmanager-telegram-bot.monitower.svc.cluster.local:8080/-4908129302"
-            send_resolved: true
+    - name: telegram
+      telegram_configs:
+      - bot_token: '<YOUR_BOT_TOKEN>'
+        chat_id: 666230298
+        parse_mode: 'Markdown'
+        send_resolved: true
