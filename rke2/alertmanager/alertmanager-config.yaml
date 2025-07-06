@@ -14,25 +14,9 @@ data:
       group_wait: 10s
       group_interval: 1m
       repeat_interval: 1h
-      routes:
-        - matchers:
-            - severity="critical"
-          receiver: telegram
-        - matchers:
-            - severity="warning"
-          receiver: email
 
     receivers:
       - name: telegram
         webhook_configs:
-          - url: 'https://alertmanager-telegram-bot.mrinjamul.dev/8117780247:AAGzE-z2o5kSlzTSUnDjafRe7hsx6Ur5Inc/-4908129302'
+          - url: "https://alertmanager-telegram-bot.mrinjamul.dev/${TELEGRAM_BOT_TOKEN}/${TELEGRAM_CHAT_ID}"
             send_resolved: true
-
-      - name: email
-        email_configs:
-          - to: "thomas.erven@gmail.com"
-            from: "alertmanager@wizartower.dev"
-            smarthost: "smtp.example.com:587"
-            auth_username: "alertmanager@example.com"
-            auth_password: "yourpassword"
-            require_tls: true

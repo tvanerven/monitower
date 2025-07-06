@@ -18,9 +18,22 @@ spec:
       containers:
       - name: alertmanager
         image: prom/alertmanager:latest
+        command: ["/bin/sh", "-c"]
         args:
-          - "--config.file=/etc/alertmanager/config.yml"
-          - "--storage.path=/alertmanager"
+          - |
+            envsubst < /etc/alertmanager/config.tpl.yml > /etc/alertmanager/config.yml && \
+            /bin/alertmanager --config.file=/etc/alertmanager/config.yml --storage.path=/alertmanager
+        env:
+          - name: TELEGRAM_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: alertmanager-telegram-secret
+                key: BOT_TOKEN
+          - name: TELEGRAM_CHAT_ID
+            valueFrom:
+              secretKeyRef:
+                name: alertmanager-telegram-secret
+                key: CHAT_ID
         ports:
           - containerPort: 9093
         volumeMounts:
@@ -31,7 +44,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: alertmanager-config
+            name: alertmanager-template-config
         - name: data
           persistentVolumeClaim:
             claimName: alertmanager-pvc
