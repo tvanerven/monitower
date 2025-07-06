@@ -21,8 +21,8 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            envsubst < /etc/alertmanager/alertmanager-config.yaml > /etc/alertmanager/config.yml && \
-            /bin/alertmanager --config.file=/etc/alertmanager/config.yml --storage.path=/alertmanager
+            envsubst < /etc/alertmanager/config.yml > /etc/alertmanager/rendered.yml && \
+            /bin/alertmanager --config.file=/etc/alertmanager/rendered.yml --storage.path=/alertmanager
         env:
           - name: TELEGRAM_BOT_TOKEN
             valueFrom:
