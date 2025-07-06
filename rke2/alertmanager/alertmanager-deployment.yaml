@@ -15,34 +15,43 @@ spec:
     spec:
       securityContext:
         fsGroup: 65534
+      initContainers:
+        - name: config-generator
+          image: alpine:3.18
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache gettext && \
+              envsubst < /config-tpl/config.yml > /config-out/config.yml
+          env:
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-telegram-secret
+                  key: BOT_TOKEN
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-telegram-secret
+                  key: CHAT_ID
+          volumeMounts:
+            - name: template-config
+              mountPath: /config-tpl
+            - name: runtime-config
+              mountPath: /config-out
       containers:
-      - name: alertmanager
-        image: prom/alertmanager:latest
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            envsubst < /etc/alertmanager-template/config.yml > /etc/alertmanager-runtime/config.yml && \
-            /bin/alertmanager --config.file=/etc/alertmanager-runtime/config.yml --storage.path=/alertmanager
-        env:
-          - name: TELEGRAM_BOT_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: alertmanager-telegram-secret
-                key: BOT_TOKEN
-          - name: TELEGRAM_CHAT_ID
-            valueFrom:
-              secretKeyRef:
-                name: alertmanager-telegram-secret
-                key: CHAT_ID
-        ports:
-          - containerPort: 9093
-        volumeMounts:
-          - name: template-config
-            mountPath: /etc/alertmanager-template
-          - name: runtime-config
-            mountPath: /etc/alertmanager-runtime
-          - name: data
-            mountPath: /alertmanager
+        - name: alertmanager
+          image: prom/alertmanager:latest
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+            - "--storage.path=/alertmanager"
+          ports:
+            - containerPort: 9093
+          volumeMounts:
+            - name: runtime-config
+              mountPath: /etc/alertmanager
+            - name: data
+              mountPath: /alertmanager
       volumes:
         - name: template-config
           configMap:
