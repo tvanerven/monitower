@@ -32,7 +32,7 @@ data:
     alerting:
       alertmanagers:
         - static_configs:
-            - targets: ['alertmanager:9093']
+            - targets: ['alertmanager:80']
 
   alert.rules.yml: |
     groups:
