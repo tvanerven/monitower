@@ -17,17 +17,17 @@ spec:
         - name: alertmanager-telegram-bot
           image: metalmatze/alertmanager-bot:0.4.3
           args:
-            - "--telegram.token=$(BOT_TOKEN)"
+            - "--telegram.token=$(TELEGRAM_TOKEN)"
             - "--telegram.admin=666230298"
             - "--store=bolt"
             - "--listen.addr=0.0.0.0:8080"
             - "--alertmanager.url=http://alertmanager:80"
           env:
-            - name: BOT_TOKEN
+            - name: TELEGRAM_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: alertmanager-telegram-bot-secret
-                  key: BOT_TOKEN
+                  key: TELEGRAM_TOKEN
             - name: LISTEN_ADDR
               value: "0.0.0.0:8080"
           ports:
