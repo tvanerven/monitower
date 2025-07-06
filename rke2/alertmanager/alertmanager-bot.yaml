@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: alertmanager-telegram-bot
   namespace: monitower
-labels:
-  app: alertmanager-telegram-bot
 spec:
   replicas: 1
   selector:
@@ -16,18 +14,18 @@ spec:
         app: alertmanager-telegram-bot
     spec:
       containers:
-      - name: alertmanager-telegram-bot
-        image: metalmatze/alertmanager-bot:0.4.3
-        env:
-          - name: TELEGRAM_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: alertmanager-telegram-bot-secret
-                key: TELEGRAM_TOKEN
-          - name: LISTEN_ADDR
-            value: "0.0.0.0:8080"
-        ports:
-          - containerPort: 8080
+        - name: alertmanager-telegram-bot
+          image: metalmatze/alertmanager-bot:0.4.3
+          env:
+            - name: TELEGRAM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-telegram-bot-secret
+                  key: TELEGRAM_TOKEN
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:8080"
+          ports:
+            - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
