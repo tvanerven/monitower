@@ -23,11 +23,11 @@ spec:
             - "--listen.addr=0.0.0.0:8080"
             - "--alertmanager.url=http://alertmanager:80"
           env:
-            - name: TELEGRAM_TOKEN
+            - name: BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: alertmanager-telegram-bot-secret
-                  key: TELEGRAM_TOKEN
+                  key: BOT_TOKEN
             - name: LISTEN_ADDR
               value: "0.0.0.0:8080"
           ports:
