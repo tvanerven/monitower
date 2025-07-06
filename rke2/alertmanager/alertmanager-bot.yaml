@@ -16,6 +16,11 @@ spec:
       containers:
         - name: alertmanager-telegram-bot
           image: metalmatze/alertmanager-bot:0.4.3
+          args:
+            - "--telegram.token=$(TELEGRAM_TOKEN)"
+            - "--telegram.admin=666230298"
+            - "--store=memory"
+            - "--listen.addr=0.0.0.0:8080"
           env:
             - name: TELEGRAM_TOKEN
               valueFrom:
