@@ -16,13 +16,16 @@ spec:
       containers:
         - name: alertmanager-telegram-bot
           image: metalmatze/alertmanager-bot:0.4.3
+          command: ["/bin/sh", "-c"]
           args:
-            - "--telegram.token=$(TELEGRAM_TOKEN)"
-            - "--telegram.admin=666230298"
-            - "--store=bolt"
-            - "--listen.addr=0.0.0.0:8080"
-            - "--alertmanager.url=https://alertmanager.wizardtower.dev"
-            - "--alertmanager.headers=Authorization: $(ALERTMANAGER_AUTH_HEADER)"
+            - |
+              /bin/alertmanager-bot \
+              --telegram.token="$TELEGRAM_TOKEN" \
+              --telegram.admin=666230298 \
+              --store=bolt \
+              --listen.addr=0.0.0.0:8080 \
+              --alertmanager.url=https://alertmanager.wizardtower.dev \
+              --alertmanager.headers="Authorization: $ALERTMANAGER_AUTH_HEADER"
           env:
             - name: TELEGRAM_TOKEN
               valueFrom:
@@ -34,8 +37,6 @@ spec:
                 secretKeyRef:
                   name: alertmanager-auth
                   key: AUTH_HEADER
-            - name: LISTEN_ADDR
-              value: "0.0.0.0:8080"
           ports:
             - containerPort: 8080
 ---
