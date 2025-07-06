@@ -18,5 +18,5 @@ data:
     receivers:
       - name: telegram
         webhook_configs:
-          - url: "https://alertmanager-telegram-bot.mrinjamul.dev/${TELEGRAM_BOT_TOKEN}/${TELEGRAM_CHAT_ID}"
+          - url: ""http://alertmanager-telegram-bot.monitower.svc.cluster.local:8080/-4908129302"
             send_resolved: true
