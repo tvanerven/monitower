@@ -31,11 +31,11 @@ data:
       
       - job_name: 'harbor-core'
         static_configs:
-          - targets: ['harbor-core.harbor.svc.cluster.local:80']
+          - targets: ['harbor-core.harbor.svc.cluster.local:8001']
 
       - job_name: 'harbor-jobservice'
         static_configs:
-          - targets: ['harbor-jobservice.harbor.svc.cluster.local:80']
+          - targets: ['harbor-jobservice.harbor.svc.cluster.local:8001']
 
     alerting:
       alertmanagers:
