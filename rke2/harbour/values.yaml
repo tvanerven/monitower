@@ -1,0 +1,26 @@
+externalURL: https://harbor.wizardtower.dev
+
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+
+  imageChartStorage:
+    type: s3
+    s3:
+      bucket: harbour
+      accesskey: <keyhere>
+      secretkey: <secrethere>
+      regionendpoint: https://nbg1.your-objectstorage.com
+      secure: true
+      v4auth: true
+      chunksize: "5242880"
+
+expose:
+  ingress:
+    enabled: true
+    className: traefik
+    hosts:
+      core: harbor.wizardtower.dev
+    tls:
+      enabled: true
+      secretName: harbor-tls

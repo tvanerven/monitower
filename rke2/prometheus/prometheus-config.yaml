@@ -28,6 +28,14 @@ data:
         metrics_path: '/_health/'
         static_configs:
           - targets: ['sentry:9000']
+      
+      - job_name: 'harbor-core'
+        static_configs:
+          - targets: ['harbor-core.harbor.svc.cluster.local:8080']
+
+      - job_name: 'harbor-jobservice'
+        static_configs:
+          - targets: ['harbor-jobservice.harbor.svc.cluster.local:8080']
 
     alerting:
       alertmanagers:
