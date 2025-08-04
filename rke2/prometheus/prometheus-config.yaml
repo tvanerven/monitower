@@ -37,6 +37,11 @@ data:
         static_configs:
           - targets: ['harbor-jobservice.harbor.svc.cluster.local:8001']
 
+      - job_name: 'museit-jacktrip'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['jacktrip2.x-system.co.uk:9100']
+
     alerting:
       alertmanagers:
         - static_configs:
