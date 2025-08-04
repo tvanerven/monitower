@@ -28,7 +28,7 @@ data:
         metrics_path: '/_health/'
         static_configs:
           - targets: ['sentry:9000']
-      
+
       - job_name: 'harbor-core'
         static_configs:
           - targets: ['harbor-core.harbor.svc.cluster.local:8001']
@@ -49,5 +49,40 @@ data:
 
   alert.rules.yml: |
     groups:
-      - name: test.rules
-        rules: []
+      - name: museit-jacktrip.rules
+        rules:
+          - alert: HighCPU
+            expr: avg(rate(node_cpu_seconds_total{mode!="idle", instance="jacktrip2.x-system.co.uk:9100"}[1m])) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage on {{ $labels.instance }}"
+              description: "CPU usage has exceeded 90% for over 5 minutes."
+
+          - alert: HighMemory
+            expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) > (26 * 1024 * 1024 * 1024)
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage on {{ $labels.instance }}"
+              description: "Memory usage has exceeded 26 GB."
+
+          - alert: DiskUsageHigh
+            expr: (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} > 0.7
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High disk usage on {{ $labels.instance }}"
+              description: "Disk usage is over 70% on root filesystem."
+
+          - alert: NodeDown
+            expr: up{instance="jacktrip2.x-system.co.uk:9100"} == 0
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.instance }} is down"
+              description: "Node exporter has stopped responding."

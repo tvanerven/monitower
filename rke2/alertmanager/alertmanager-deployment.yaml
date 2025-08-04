@@ -34,6 +34,11 @@ spec:
                 secretKeyRef:
                   name: alertmanager-telegram-secret
                   key: CHAT_ID
+            - name: DISCORD_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-discord-webhook
+                  key: DISCORD_WEBHOOK_URL
           volumeMounts:
             - name: template-config
               mountPath: /config-tpl
