@@ -22,3 +22,10 @@ data:
             title: '{{ .CommonAnnotations.summary }}'
             message: '{{ .CommonAnnotations.description }}'
             send_resolved: true
+
+      - name: discord-sharemusic
+        discord_configs:
+          - webhook_url: '${SHAREMUSIC_DISCORD_WEBHOOK_URL}'
+            title: '{{ .CommonAnnotations.summary }}'
+            message: '{{ .CommonAnnotations.description }}'
+            send_resolved: true

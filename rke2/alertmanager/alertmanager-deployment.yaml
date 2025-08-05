@@ -39,6 +39,11 @@ spec:
                 secretKeyRef:
                   name: alertmanager-discord-webhook
                   key: DISCORD_WEBHOOK_URL
+            - name: SHAREMUSIC_DISCORD_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-discord-sharemusic-webhook
+                  key: SHAREMUSIC_DISCORD_WEBHOOK_URL
           volumeMounts:
             - name: template-config
               mountPath: /config-tpl
