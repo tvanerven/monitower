@@ -21,8 +21,12 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              set -e
               apk add --no-cache gettext && \
-              envsubst < /config-tpl/config.yml > /config-out/config.yml
+              echo "envsubst variables:" && env | grep WEBHOOK && \
+              echo "--- BEGIN TEMPLATE ---" && cat /config-tpl/config.yml && echo "--- END TEMPLATE ---" && \
+              envsubst < /config-tpl/config.yml > /config-out/config.yml && \
+              echo "Substitution complete:" && cat /config-out/config.yml
           env:
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
