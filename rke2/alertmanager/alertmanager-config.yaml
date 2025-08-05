@@ -14,6 +14,10 @@ data:
       group_wait: 10s
       group_interval: 1m
       repeat_interval: 1h
+      routes:
+        - match:
+            team: sharemusic
+          receiver: discord-sharemusic
 
     receivers:
       - name: discord

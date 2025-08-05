@@ -134,3 +134,13 @@ data:
               summary: "High disk usage by container {{ $labels.container }}"
               description: "Disk usage exceeds 80% for container {{ $labels.container }}."
 
+          - alert: NodeDown
+            expr: up{instance="jacktrip2.x-system.co.uk:9100"} == 0
+            for: 2m
+            labels:
+              severity: critical
+              team: sharemusic
+            annotations:
+              summary: "{{ $labels.instance }} is down"
+              description: "Node exporter on {{ $labels.instance }} has not responded for 2 minutes."
+
