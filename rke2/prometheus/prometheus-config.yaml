@@ -135,7 +135,7 @@ data:
               description: "Disk usage exceeds 80% for container {{ $labels.container }}."
 
           - alert: NodeDown
-            expr: up{instance="jacktrip2.x-system.co.uk:9100"} == 0
+            expr: up{instance="cadvisor-sharemusic.wizardtower.dev"} == 0
             for: 2m
             labels:
               severity: critical
